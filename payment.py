@@ -10,3 +10,7 @@ class Payment(BaseModel):
     date: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     amount: int
 
+"""
+virement interne
+virement externe
+"""

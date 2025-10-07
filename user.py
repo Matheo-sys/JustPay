@@ -1,14 +1,11 @@
-from bankAccount import *
-from main import *
 from enum import Enum
 from bankAccount import create_primary_bank_account
-from user import *
+from pydantic import BaseModel
+import uuid
 from pydantic import BaseModel
 
-import uuid
-
 class User(BaseModel):
-    id : str =  uuid.uuid4()
+    id : str =  uuid.uuid4() #id: str = Field(default_factory=lambda: str(uuid4())) ID UNIQUE
     pseudo: str 
     name: str
     firstname: str
@@ -27,7 +24,7 @@ class Region(str, Enum):
     America = "America"
 
 
-def create_user(pseudo: str, name: str, firstname: str, password: float, email: str, age: int, region: Region, gender: Gender):    
+def create_user(pseudo: str, name: str, firstname: str, password: str, email: str, age: int, region: Region, gender: Gender):    
     
     user = User(pseudo=pseudo, 
                 name=name, 
@@ -42,7 +39,7 @@ def create_user(pseudo: str, name: str, firstname: str, password: float, email: 
                         firstname=firstname, 
                         email=email, age=age, 
                         account_number=str(uuid.uuid4()), 
-                        user_id=User.id)
+                        user_id=str(user.id))
     
     return user
 

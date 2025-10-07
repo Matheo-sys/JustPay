@@ -20,18 +20,18 @@ class BankAccount(BaseModel):
     balance: int = 0
     account_type: AccountType = 1
     currency: str = "EUR"
-    user_id: int
+    user_id: str
 
 list_of_bank_accounts = []
 
-def get_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: int):
+def get_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: str):
     
     for account in list_of_bank_accounts:
         if account.account_type == AccountType.principal:
             
             return {"message": "Bank account details", "account_id": account_number}
 
-def get_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: int):
+def get_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: str):
     
     return {"message": "Bank account details", "account_id": account_number}
 
@@ -41,7 +41,7 @@ def update_bank_account(account_id  : int, account: BankAccount):    return {"me
 def delete_bank_account(account_id: int):    return {"message": "Bank account deleted", "account_id": account_id}
 
 
-def create_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, account_type: AccountType, user_id: int):
+def create_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, account_type: AccountType, user_id: str):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
@@ -66,7 +66,7 @@ create primary bank account when creating user
 or creat secondary bank account when user already has a primary bank account
 """
 
-def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: int):
+def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
@@ -85,7 +85,7 @@ def create_primary_bank_account(name: str, firstname: str, email: str, age: int,
     list_of_bank_accounts.append(bankUser)
     return bankUser
 
-def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: int):
+def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     

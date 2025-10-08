@@ -119,7 +119,7 @@ def get_account_balance(account_id: int, session: Session):
     account = session.exec(BankAccount).filter_by(account_number=account_id).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id, "balance": None}
-    return {"message": "Account balance", "account_id": account_id, "balance": account.balance, "currency": account.currency}
+    return {"message": "Account balance", "account_id": account_id, "balance": cents_to_euros(account.balance), "currency": account.currency}
 
 def deposit_to_account(account_id: int, amount: int, session: Session):
 
@@ -128,6 +128,6 @@ def deposit_to_account(account_id: int, amount: int, session: Session):
         return {"message": "Bank account not found", "account_id": account_id}
     if amount <= 0:
         return {"message": "Deposit amount must be positive", "account_id": account_id}
-    account.balance += amount
+    account.balance += euros_to_cents(amount)
     session.commit()
-    return {"message": "Deposit successful", "account_id": account_id, "new_balance": account.balance}
+    return {"message": "Deposit successful", "account_id": account_id, "new_balance": cents_to_euros(account.balance)}

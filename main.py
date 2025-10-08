@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI, HTTPException
-from user import User, Gender, Region, create_user, get_user, update_user, delete_user, add_deposit
-from bankAccount import BankAccount, AccountType, Currency, create_primary_bank_account, create_secondary_bank_account, get_all_bank_accounts, update_bank_account, delete_bank_account, get_primary_bank_account, get_secondary_bank_account, list_of_bank_accounts
+from user import User, Gender, Region, create_user, get_user, update_user, delete_user
+from bankAccount import BankAccount, AccountType, Currency, create_primary_bank_account, create_secondary_bank_account, deposit_to_account, get_all_bank_accounts, update_bank_account, delete_bank_account, get_primary_bank_account, get_secondary_bank_account, list_of_bank_accounts
 from beneficiary import Beneficiary, create_beneficiary, get_beneficiary, list_of_beneficiaries
 from payment import Payment
 import jwt
@@ -31,7 +31,7 @@ def get_user_root(user_id: int, pseudo: str, name: str, firstname: str, email: s
 
 @app.post("/users/deposit")
 def add_deposit_root(amount: int, balance: int):
-    new_balance = add_deposit(amount, balance)
+    new_balance = deposit_to_account(amount, balance)
     return {"new_balance": new_balance}
 
 

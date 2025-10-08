@@ -60,8 +60,20 @@ def get_secondary_bank_account(user_id: str, session: Session):
     else:
         return {"message": "No secondary bank accounts found", "accounts": []}
     
-def get_all_bank_accounts():
-    return {"message": "List of all bank accounts", "accounts": list_of_bank_accounts}
+def get_all_bank_accounts(user_id: str, session: Session):
+
+    accounts = session.exec(BankAccount).filter_by(user_id=user_id).order_by(BankAccount.created_at.desc()).all()
+    account_list = []
+    for account in accounts:
+        account_list.append({
+            "account_id": account.account_number,
+            "balance": cents_to_euros(account.balance),
+            "created_at": account.created_at
+        })
+    return {
+        "message": "List of user bank accounts",
+        "accounts": account_list
+    }
 
 def update_bank_account(account_id: int, updated_data: dict, session: Session):
 

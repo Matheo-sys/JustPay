@@ -13,6 +13,11 @@ class Currency(str, Enum):
     USD = "USD"
     EUR = "EUR"
 
+class status(str, Enum):
+    active = "active"
+    inactive = "inactive"
+    closed = "closed"
+
 list_of_bank_accounts = []
 
 def get_primary_bank_account(user_id: str, session: Session):
@@ -115,11 +120,23 @@ def euros_to_cents(euros: float):
     return cents
 
 def get_account_balance(account_id: int, session: Session):
-
+    """
+    Retourne les informations du compte et le solde.
+    """
     account = session.exec(BankAccount).filter_by(account_number=account_id).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id, "balance": None}
-    return {"message": "Account balance", "account_id": account_id, "balance": cents_to_euros(account.balance), "currency": account.currency}
+    return {
+        "message": "Account details",
+        "account_id": account.account_number,
+        "name": account.name,
+        "firstname": account.firstname,
+        "email": account.email,
+        "age": account.age,
+        "balance": cents_to_euros(account.balance),
+        "currency": account.currency,
+        "status": account.status
+    }
 
 def deposit_to_account(account_id: int, amount: int, session: Session):
 
@@ -131,3 +148,31 @@ def deposit_to_account(account_id: int, amount: int, session: Session):
     account.balance += euros_to_cents(amount)
     session.commit()
     return {"message": "Deposit successful", "account_id": account_id, "new_balance": cents_to_euros(account.balance)}
+
+def close_bank_account(account_id: int, user_id: str, session: Session):
+
+    account = session.exec(BankAccount).filter_by(account_number=account_id, user_id=user_id).first()
+    if not account:
+        return {"message": "Bank account not found", "account_id": account_id}
+    if account.account_type == AccountType.principal:
+        return {"message": "Primary account cannot be closed", "account_id": account_id}
+    if account.status == status.closed:
+        return {"message": "Account already closed", "account_id": account_id}
+
+    if hasattr(account, "has_pending_transactions") and account.has_pending_transactions:
+        return {"message": "Account has pending transactions", "account_id": account_id}
+
+    primary_account_data = get_primary_bank_account(user_id, session)
+    if not primary_account_data or not primary_account_data.get("account_id"):
+        return {"message": "Primary account not found for transfer", "account_id": account_id}
+    primary_account = session.exec(BankAccount).filter_by(account_number=primary_account_data["account_id"]).first()
+    if not primary_account:
+        return {"message": "Primary account not found for transfer", "account_id": account_id}
+
+    if account.balance > 0:
+        primary_account.balance += account.balance
+        account.balance = 0
+
+    account.status = status.closed
+    session.commit()
+    return {"message": "Bank account closed", "account_id": account_id}

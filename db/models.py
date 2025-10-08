@@ -29,6 +29,7 @@ class BankAccount(SQLModel, table=True):
     balance: int = 10000 # Balance in cents
     account_type: int
     currency: str = "EUR"
+    status: str = "active"
     user_id: Optional[str] = Field(foreign_key="user.id")
 
     user: Optional[User] = Relationship(back_populates="bank_accounts")

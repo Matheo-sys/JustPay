@@ -3,6 +3,8 @@ from user import User, Gender, Region, create_user, get_user, update_user, delet
 from bankAccount import BankAccount, AccountType, Currency, create_primary_bank_account, create_secondary_bank_account, get_all_bank_accounts, update_bank_account, delete_bank_account, get_primary_bank_account, get_secondary_bank_account, list_of_bank_accounts
 from beneficiary import Beneficiary, create_beneficiary, get_beneficiary, list_of_beneficiaries
 from payment import Payment
+import jwt
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 
 app = FastAPI()
@@ -65,3 +67,4 @@ def create_beneficiary_route(user_id: int, name: str, account_number: str):
     beneficiary = create_beneficiary(user_id, name, account_number)
     list_of_beneficiaries.append(beneficiary)
     return {"message": "Beneficiary created", "beneficiary": beneficiary}
+

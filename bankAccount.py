@@ -17,7 +17,7 @@ class BankAccount(BaseModel):
     email: str
     age: int
     account_number: str
-    balance: int = 0
+    balance: int = 10000
     account_type: AccountType = 1
     currency: str = "EUR"
     user_id: str
@@ -40,46 +40,12 @@ def get_all_bank_accounts():    return list_of_bank_accounts
 def update_bank_account(account_id  : int, account: BankAccount):    return {"message": "Bank account updated", "account_id": account_id, "account": account}
 def delete_bank_account(account_id: int):    return {"message": "Bank account deleted", "account_id": account_id}
 
-
-def create_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, account_type: AccountType, user_id: str):
-    if age < 18:
-        raise ValueError("User must be at least 18 years old to create a bank account.")
-    
-    if not name or not firstname or not email:
-        raise ValueError("Name, firstname, and email cannot be empty.")
-    
-    for account in list_of_bank_accounts:
-
-        if account.email == email:
-            raise ValueError("A bank account with this email already exists.")
-        
-        if account.account_type == AccountType.principal:
-            bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, account_type=0, user_id=user_id)
-        else:
-            bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, account_type=1, user_id=user_id)
-
-    list_of_bank_accounts.append(bankUser)
-    return list_of_bank_accounts
-
-"""
-create primary bank account when creating user
-or creat secondary bank account when user already has a primary bank account
-"""
-
 def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
     if not name or not firstname or not email:
         raise ValueError("Name, firstname, and email cannot be empty.")
-    
-    for account in list_of_bank_accounts:
-
-        if account.email == email:
-            raise ValueError("A bank account with this email already exists.")
-        
-        if account.account_type == AccountType.principal:
-            raise ValueError("User already has a primary bank account.")
         
     bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, account_type=1, user_id=user_id)
     list_of_bank_accounts.append(bankUser)
@@ -91,7 +57,17 @@ def create_secondary_bank_account(name: str, firstname: str, email: str, age: in
     
     if not name or not firstname or not email:
         raise ValueError("Name, firstname, and email cannot be empty.")
+    
+    if 
         
-    bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, account_type=0, user_id=user_id)
+    bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, balance=0 ,account_type=0, user_id=user_id)
     list_of_bank_accounts.append(bankUser)
     return bankUser
+
+def cents_to_euros(cents: int):
+    euros = cents / 100
+    return euros
+
+def euros_to_cents(euros: float):
+    cents = int(euros * 100)
+    return cents

@@ -2,14 +2,16 @@ from enum import Enum
 from bankAccount import create_primary_bank_account
 from pydantic import BaseModel
 import uuid
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from uuid import uuid4
+from argon2 import PasswordHasher
 
 class User(BaseModel):
-    id : str =  uuid.uuid4() #id: str = Field(default_factory=lambda: str(uuid4())) ID UNIQUE
+    id: str = Field(default_factory=lambda: str(uuid4()))
     pseudo: str 
     name: str
     firstname: str
-    password: str
+    hashed_password: str
     email: str
     age: int
     region: str
@@ -29,7 +31,7 @@ def create_user(pseudo: str, name: str, firstname: str, password: str, email: st
     user = User(pseudo=pseudo, 
                 name=name, 
                 firstname=firstname, 
-                password=password, 
+                password=hashpassword(password), 
                 email=email, 
                 age=age, 
                 region=region, 
@@ -56,3 +58,8 @@ def delete_user(user_id: int): return {"message": "User deleted", "user_id": use
 def add_deposit(amount: int, balance: int):
     balance += amount
     return balance
+
+def hashpassword(password: str):
+    ph = PasswordHasher()
+    hashed_password = ph.hash(password)
+    return hashed_password

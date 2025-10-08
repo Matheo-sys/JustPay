@@ -7,9 +7,13 @@ import jwt
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from db.database import create_db_and_tables, get_session
 
+from routes.bankAccount.route import app as bank_account_router
+
 create_db_and_tables()
 
 app = FastAPI()
+
+app.include_router(bank_account_router, prefix="/bankaccount")
 
 @app.get("/")
 def read_root():

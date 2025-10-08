@@ -1,12 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from user import User, Gender, Region, create_user, get_user, update_user, delete_user, add_deposit
 from bankAccount import BankAccount, AccountType, Currency, create_primary_bank_account, create_secondary_bank_account, get_all_bank_accounts, update_bank_account, delete_bank_account, get_primary_bank_account, get_secondary_bank_account, list_of_bank_accounts
 from beneficiary import Beneficiary, create_beneficiary, get_beneficiary, list_of_beneficiaries
 from payment import Payment
 import jwt
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from db.database import create_db_and_tables, get_session
 
-
+create_db_and_tables()
 
 app = FastAPI()
 
@@ -17,9 +18,9 @@ def read_root():
 #Routes pour User
 
 @app.post("/users")
-def create_user_root(pseudo: str, name: str, firstname: str, password: str, email: str, age: int, region: Region, gender: Gender):
+def create_user_root(pseudo: str, name: str, firstname: str, password: str, email: str, age: int, region: Region, gender: Gender, session = Depends(get_session)):
     try:
-        user = create_user(pseudo, name, firstname, password, email, age, region, gender)
+        user = create_user(pseudo, name, firstname, password, email, age, region, gender, session)
         return {"message": "User created", "user": user}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

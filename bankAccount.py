@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from enum import Enum
 from beneficiary import *
+from db.database import Session
+from db.schemas import BankAccount
 
 class AccountType(int, Enum):
     principal = 1
@@ -10,17 +12,6 @@ class AccountType(int, Enum):
 class Currency(str, Enum):
     USD = "USD"
     EUR = "EUR"
-
-class BankAccount(BaseModel):
-    name: str
-    firstname: str
-    email: str
-    age: int
-    account_number: str
-    balance: int = 10000
-    account_type: AccountType = 1
-    currency: str = "EUR"
-    user_id: str
 
 list_of_bank_accounts = []
 
@@ -40,7 +31,7 @@ def get_all_bank_accounts():    return list_of_bank_accounts
 def update_bank_account(account_id  : int, account: BankAccount):    return {"message": "Bank account updated", "account_id": account_id, "account": account}
 def delete_bank_account(account_id: int):    return {"message": "Bank account deleted", "account_id": account_id}
 
-def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str):
+def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str, session: Session):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
@@ -49,6 +40,8 @@ def create_primary_bank_account(name: str, firstname: str, email: str, age: int,
         
     bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, account_type=1, user_id=user_id)
     list_of_bank_accounts.append(bankUser)
+    session.add(bankUser)
+    session.commit()
     return bankUser
 
 def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str):
@@ -72,3 +65,9 @@ def cents_to_euros(cents: int):
 def euros_to_cents(euros: float):
     cents = int(euros * 100)
     return cents
+
+def add_deposit(amount: int, balance: int, session: Session):
+    balance += amount
+    session.add(balance)
+    session.commit()
+    return balance

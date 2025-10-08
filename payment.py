@@ -3,26 +3,9 @@ from datetime import datetime
 import uuid
 from enum import Enum
 from bankAccount import cents_to_euros, euros_to_cents
+from db.database import Session, get_session
+from db.models import Payment, Beneficiary, Operation
 
-class Payment(BaseModel):
-    id : str =  uuid.uuid4()    
-    account_number: str
-    user_id: int
-    beneficiary_account_number: str
-    date: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    amount: int
-
-class OperationType(str, Enum):
-    INTERNAL_TRANSFER = "virement interne"
-    EXTERNAL_TRANSFER = "virement externe"
-
-class Operation(BaseModel):
-    id : str =  uuid.uuid4()    
-    payment_id: str
-    operation_type: OperationType
-    status: str = "pending"
-    date: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    amount: int
 
 class PaymentStatus(str, Enum):
     PENDING = "pending"
@@ -30,11 +13,9 @@ class PaymentStatus(str, Enum):
     CANCELLED = "cancelled"
     FAILED = "failed"
 
-class Beneficiary(BaseModel):
-    id : str =  uuid.uuid4()    
-    user_id: int
-    name: str
-    account_number: str 
+class OperationType(str, Enum):
+    INTERNAL_TRANSFER = "virement interne"
+    EXTERNAL_TRANSFER = "virement externe"
 
 
 def create_payment(user_id: int, account_number: str, beneficiary_account_number: str, amount: int) -> Payment:
@@ -56,14 +37,19 @@ def get_payment_details(payment_id: str) -> Payment:
 def get_account_transactions(account_number: str) -> list[Payment]:
     account_transactions = [payment for payment in payments_db if payment.account_number == account_number]
 
+    account_transactions.sort(key=lambda x: x.date, reverse=True)
     return account_transactions
       
-
+def cancel_payment() -> None:
+    pass
 
 
 
 """
 virement interne
 virement externe
-liste des beneficiaries
+liste des beneficiaires
+annuler transaction 
+visualiser le détail/info d’une transaction
 """
+

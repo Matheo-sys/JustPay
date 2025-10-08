@@ -90,7 +90,7 @@ def create_primary_bank_account(name: str, firstname: str, email: str, age: int,
     session.commit()
     return bankUser
 
-def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str):
+def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str, session: Session):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
@@ -102,6 +102,8 @@ def create_secondary_bank_account(name: str, firstname: str, email: str, age: in
         
     bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, balance=0 ,account_type=0, user_id=user_id)
     list_of_bank_accounts.append(bankUser)
+    session.add(bankUser)
+    session.commit()
     return bankUser
 
 def cents_to_euros(cents: int):
@@ -112,9 +114,20 @@ def euros_to_cents(euros: float):
     cents = int(euros * 100)
     return cents
 
-def add_deposit(amount: int, balance: int, session: Session):
-    balance += amount
-    session.add(balance)
-    session.commit()
-    return balance
+def get_account_balance(account_id: int, session: Session):
 
+    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    if not account:
+        return {"message": "Bank account not found", "account_id": account_id, "balance": None}
+    return {"message": "Account balance", "account_id": account_id, "balance": account.balance, "currency": account.currency}
+
+def deposit_to_account(account_id: int, amount: int, session: Session):
+
+    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    if not account:
+        return {"message": "Bank account not found", "account_id": account_id}
+    if amount <= 0:
+        return {"message": "Deposit amount must be positive", "account_id": account_id}
+    account.balance += amount
+    session.commit()
+    return {"message": "Deposit successful", "account_id": account_id, "new_balance": account.balance}

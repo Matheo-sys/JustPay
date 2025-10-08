@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import uuid
 from enum import Enum
+from bankAccount import cents_to_euros, euros_to_cents
 
 class Payment(BaseModel):
     id : str =  uuid.uuid4()    
@@ -22,6 +23,12 @@ class Operation(BaseModel):
     status: str = "pending"
     date: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     amount: int
+
+class PaymentStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    FAILED = "failed"
 
 class Beneficiary(BaseModel):
     id : str =  uuid.uuid4()    
@@ -47,11 +54,11 @@ def get_payment_details(payment_id: str) -> Payment:
             return payment
     return None
 
-def get_account_transactions(account_number: str): -> list[Payment]:
-account_transactions = [payment for payment in payments_db if payment.account_number == account_number]
+def get_account_transactions(account_number: str) -> list[Payment]:
+    account_transactions = [payment for payment in payments_db if payment.account_number == account_number]
+
+    return account_transactions
       
-
-
 
 
 

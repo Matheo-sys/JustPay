@@ -7,6 +7,7 @@ import jwt
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 
+
 app = FastAPI()
 
 @app.get("/")
@@ -58,7 +59,6 @@ def get_primary_account_route(name: str, firstname: str, email: str, age: int, a
 @app.get("/accounts/secondary")
 def get_secondary_account_route(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: int):
     return get_secondary_bank_account(name, firstname, email, age, account_number, balance, account_type, currency, user_id)
-
 
 #Routes pour Beneficiary
 

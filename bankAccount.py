@@ -58,7 +58,8 @@ def create_secondary_bank_account(name: str, firstname: str, email: str, age: in
     if not name or not firstname or not email:
         raise ValueError("Name, firstname, and email cannot be empty.")
     
-    if 
+    if list_of_bank_accounts.count >= 5:
+        raise ValueError("User cannot have more than 5 bank accounts.")
         
     bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, balance=0 ,account_type=0, user_id=user_id)
     list_of_bank_accounts.append(bankUser)

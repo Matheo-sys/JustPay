@@ -36,7 +36,6 @@ class Beneficiary(BaseModel):
     name: str
     account_number: str 
 
-list_of_payees = []
 
 def create_payment(user_id: int, account_number: str, beneficiary_account_number: str, amount: int) -> Payment:
     payment = Payment(

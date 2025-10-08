@@ -1,16 +1,14 @@
-from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlmodel import Session, create_engine, SQLModel, Field
 
-DATABASE_URL = "sqlite:///./test.db"  # Change this to your preferred database URL
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
 
-Base = declarative_base()
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
 
-def init_db():
-    Base.metadata.create_all(bind=engine)
-
-# Call init_db() to create the tables in the database
-init_db()
+def get_session():
+    with Session(engine) as session:
+        yield session

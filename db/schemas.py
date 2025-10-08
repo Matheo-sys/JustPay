@@ -1,57 +1,61 @@
-from pydantic import BaseModel
-from uuid import UUID
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
+import uuid
 from datetime import datetime
-from enum import Enum
 
-class Gender(str, Enum):
-    male = "male"
-    female = "female"
-
-class Region(str, Enum):
-    Europe = "Europe"
-    America = "America"
-
-class UserSchema(BaseModel):
-    id: UUID
+class User(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
     pseudo: str
     name: str
     firstname: str
     hashed_password: str
-    email: str
+    email: str = Field(index=True, unique=True)
     age: int
-    region: Region
-    gender: Gender
+    region: str
+    gender: str
 
-class BankAccountSchema(BaseModel):
-    id: UUID
+    bank_accounts: List["BankAccount"] = Relationship(back_populates="user")
+    beneficiaries: List["Beneficiary"] = Relationship(back_populates="user")
+    payments: List["Payment"] = Relationship(back_populates="user")
+
+class BankAccount(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
     name: str
     firstname: str
     email: str
     age: int
-    account_number: str
-    balance: int
+    account_number: str = Field(index=True, unique=True)
+    balance: int = 10000
     account_type: int
-    currency: str
-    user_id: UUID
+    currency: str = "EUR"
+    user_id: Optional[str] = Field(foreign_key="user.id")
 
-class BeneficiarySchema(BaseModel):
-    id: UUID
-    user_id: UUID
+    user: Optional[User] = Relationship(back_populates="bank_accounts")
+
+class Beneficiary(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    user_id: Optional[str] = Field(foreign_key="user.id")
     name: str
     account_number: str
 
-class PaymentSchema(BaseModel):
-    id: UUID
-    account_number: str
-    user_id: UUID
-    beneficiary_account_number: str
-    date: datetime
+    user: Optional[User] = Relationship(back_populates="beneficiaries")
+
+class Payment(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    account_number: str = Field(foreign_key="bankaccount.account_number")
+    user_id: Optional[str] = Field(foreign_key="user.id")
+    beneficiary_account_number: str = Field(foreign_key="beneficiary.account_number")
+    date: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
     amount: int
 
-class OperationSchema(BaseModel):
-    id: UUID
-    payment_id: UUID
+    user: Optional[User] = Relationship(back_populates="payments")
+
+class Operation(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    payment_id: Optional[str] = Field(foreign_key="payment.id")
     operation_type: str
-    status: str
-    date: datetime
+    status: str = "pending"
+    date: datetime = Field(default_factory=datetime.utcnow)
     amount: int
+
+    payment: Optional[Payment] = Relationship()

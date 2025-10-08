@@ -1,72 +1,61 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
 import uuid
-from database import Base
+from datetime import datetime, timezone
 
-class User(Base):
-    __tablename__ = 'users'
+class User(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    pseudo: str
+    name: str
+    firstname: str
+    hashed_password: str
+    email: str = Field(index=True, unique=True)
+    age: int
+    region: str
+    gender: str
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    pseudo = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    firstname = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    age = Column(Integer, nullable=False)
-    region = Column(String, nullable=False)
-    gender = Column(String, nullable=False)
+    bank_accounts: List["BankAccount"] = Relationship(back_populates="user")
+    beneficiaries: List["Beneficiary"] = Relationship(back_populates="user")
+    payments: List["Payment"] = Relationship(back_populates="user")
 
-    bank_accounts = relationship("BankAccount", back_populates="user")
-    beneficiaries = relationship("Beneficiary", back_populates="user")
-    payments = relationship("Payment", back_populates="user")
+class BankAccount(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    name: str
+    firstname: str
+    email: str
+    age: int
+    account_number: str = Field(index=True, unique=True)
+    balance: int = 10000
+    account_type: int
+    currency: str = "EUR"
+    user_id: Optional[str] = Field(foreign_key="user.id")
 
-class BankAccount(Base):
-    __tablename__ = 'bank_accounts'
+    user: Optional[User] = Relationship(back_populates="bank_accounts")
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, nullable=False)
-    firstname = Column(String, nullable=False)
-    email = Column(String, nullable=False)
-    age = Column(Integer, nullable=False)
-    account_number = Column(String, unique=True, nullable=False)
-    balance = Column(Integer, default=10000)
-    account_type = Column(Integer, nullable=False)
-    currency = Column(String, default="EUR")
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'))
+class Beneficiary(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    user_id: Optional[str] = Field(foreign_key="user.id")
+    name: str
+    account_number: str
 
-    user = relationship("User", back_populates="bank_accounts")
+    user: Optional[User] = Relationship(back_populates="beneficiaries")
 
-class Beneficiary(Base):
-    __tablename__ = 'beneficiaries'
+class Payment(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    account_number: str = Field(foreign_key="bankaccount.account_number")
+    user_id: Optional[str] = Field(foreign_key="user.id")
+    beneficiary_account_number: str = Field(foreign_key="beneficiary.account_number")
+    date: datetime = Field(default_factory=datetime.now(timezone.utc))
+    amount: int
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'))
-    name = Column(String, nullable=False)
-    account_number = Column(String, nullable=False)
+    user: Optional[User] = Relationship(back_populates="payments")
 
-    user = relationship("User", back_populates="beneficiaries")
+class Operation(SQLModel, table=True):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
+    payment_id: Optional[str] = Field(foreign_key="payment.id")
+    operation_type: str
+    status: str = "pending"
+    date: datetime = Field(default_factory=datetime.now(timezone.utc))
+    amount: int
 
-class Payment(Base):
-    __tablename__ = 'payments'
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    account_number = Column(String, ForeignKey('bank_accounts.account_number'))
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'))
-    beneficiary_account_number = Column(String, ForeignKey('beneficiaries.account_number'))
-    date = Column(DateTime)
-    amount = Column(Integer, nullable=False)
-
-    user = relationship("User", back_populates="payments")
-
-class Operation(Base):
-    __tablename__ = 'operations'
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    payment_id = Column(UUID(as_uuid=True), ForeignKey('payments.id'))
-    operation_type = Column(String, nullable=False)
-    status = Column(String, default="pending")
-    date = Column(DateTime)
-    amount = Column(Integer, nullable=False)
-
-    payment = relationship("Payment")
+    payment: Optional[Payment] = Relationship()

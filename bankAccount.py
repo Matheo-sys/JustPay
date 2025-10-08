@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from enum import Enum
 from beneficiary import *
 from db.database import Session
-from db.schemas import BankAccount
+from db.models import BankAccount
 
 class AccountType(int, Enum):
     principal = 1
@@ -15,21 +15,67 @@ class Currency(str, Enum):
 
 list_of_bank_accounts = []
 
-def get_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: str):
+def get_primary_bank_account(user_id: str, session: Session):
     
-    for account in list_of_bank_accounts:
-        if account.account_type == AccountType.principal:
-            
-            return {"message": "Bank account details", "account_id": account_number}
-
-def get_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: int, balance: float, account_type: AccountType, currency: Currency, user_id: str):
     
-    return {"message": "Bank account details", "account_id": account_number}
+    account = session.exec(BankAccount).filter_by(user_id=user_id, account_type=AccountType.principal).first()
+    if account:
+        return {
+            "message": "Bank account details",
+            "account_id": account.account_number,
+            "name": account.name,
+            "firstname": account.firstname,
+            "email": account.email,
+            "age": account.age,
+            "balance": account.balance,
+            "currency": account.currency
+        }
+    else:
+        return {"message": "Primary bank account not found", "account_id": None}
+    
+def get_secondary_bank_account(user_id: str, session: Session):
+    
+    accounts = session.exec(BankAccount).filter_by(user_id=user_id, account_type=AccountType.secondary).all()
+    if accounts:
+        account_list = []
+        for account in accounts:
+            account_list.append({
+                "account_id": account.account_number,
+                "name": account.name,
+                "firstname": account.firstname,
+                "email": account.email,
+                "age": account.age,
+                "balance": account.balance,
+                "currency": account.currency
+            })
+        return {
+            "message": "Secondary bank accounts details",
+            "accounts": account_list
+        }
+    else:
+        return {"message": "No secondary bank accounts found", "accounts": []}
+    
+def get_all_bank_accounts():
+    return {"message": "List of all bank accounts", "accounts": list_of_bank_accounts}
 
-def get_all_bank_accounts():    return list_of_bank_accounts
+def update_bank_account(account_id: int, updated_data: dict, session: Session):
 
-def update_bank_account(account_id  : int, account: BankAccount):    return {"message": "Bank account updated", "account_id": account_id, "account": account}
-def delete_bank_account(account_id: int):    return {"message": "Bank account deleted", "account_id": account_id}
+    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    if not account:
+        return {"message": "Bank account not found", "account_id": account_id}
+    for key, value in updated_data.items():
+        setattr(account, key, value)
+    session.commit()
+    return {"message": "Bank account updated", "account_id": account_id, "account": account}
+
+def delete_bank_account(account_id: int, session: Session):
+
+    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    if not account:
+        return {"message": "Bank account not found", "account_id": account_id}
+    session.delete(account)
+    session.commit()
+    return {"message": "Bank account deleted", "account_id": account_id}
 
 def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str, session: Session):
     if age < 18:
@@ -71,3 +117,4 @@ def add_deposit(amount: int, balance: int, session: Session):
     session.add(balance)
     session.commit()
     return balance
+

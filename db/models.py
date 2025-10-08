@@ -2,6 +2,8 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List
 import uuid
 from datetime import datetime, timezone
+from bankAccount import cents_to_euro
+
 
 class User(SQLModel, table=True):
     id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
@@ -25,7 +27,7 @@ class BankAccount(SQLModel, table=True):
     email: str
     age: int
     account_number: str = Field(index=True, unique=True)
-    balance: int = 10000
+    balance: int = cents_to_euro(10000)
     account_type: int
     currency: str = "EUR"
     user_id: Optional[str] = Field(foreign_key="user.id")

@@ -11,16 +11,8 @@ from argon2.exceptions import VerifyMismatchError
 from fastapi import FastAPI, HTTPException
 from db.models import User
 
-class Gender(str, Enum):
-    male = "male"
-    female = "female"
 
-
-class Region(str, Enum):
-    Europe = "Europe"
-    America = "America"
-
-def create_user(pseudo: str, name: str, firstname: str, password: str, email: str, age: int, region: Region, gender: Gender, session: Session):    
+def create_user(pseudo: str, name: str, firstname: str, password: str, email: str, age: int, region: str, gender: str, session: Session):    
     user = User(
         pseudo=pseudo, 
         name=name, 
@@ -44,7 +36,7 @@ def create_user(pseudo: str, name: str, firstname: str, password: str, email: st
     )
     return user
 
-def get_user(user_id: int, session: Session):
+def get_user(user_id: str, session: Session):
     user = session.get(User, user_id)
     if not user:
         return None
@@ -59,10 +51,21 @@ def get_user(user_id: int, session: Session):
         "gender": user.gender
     }
 
-def update_user(user_id: int, user: User, session: Session):
-    session.add(user)
+def update_user(user_id: str, updated_data: dict, session: Session):
+    user = session.get(User, user_id)
+    if not user:
+        return None
+    for key, value in updated_data.items():
+        if hasattr(user, key):
+            setattr(user, key, value)
     session.commit()
-    return {"message": "User updated", "user_id": user_id, "user": user}
+    return user
 
-def delete_user(user_id: int): return {"message": "User deleted", "user_id": user_id}
+def delete_user(user_id: str, session: Session):
+    user = session.get(User, user_id)
+    if not user:
+        return False
+    session.delete(user)
+    session.commit()
+    return True
 

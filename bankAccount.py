@@ -28,7 +28,7 @@ def get_primary_bank_account(user_id: str, session: Session):
     if account:
         return {
             "message": "Bank account details",
-            "account_id": account.account_number,
+            "account_number": account.account_number,
             "name": account.name,
             "firstname": account.firstname,
             "email": account.email,
@@ -37,7 +37,7 @@ def get_primary_bank_account(user_id: str, session: Session):
             "currency": account.currency
         }
     else:
-        return {"message": "Primary bank account not found", "account_id": None}
+        return {"message": "Primary bank account not found", "account_number": None}
     
 def get_secondary_bank_account(user_id: str, session: Session):
     statement = select(BankAccount).filter_by(user_id=user_id, account_type=AccountType.secondary)
@@ -46,7 +46,7 @@ def get_secondary_bank_account(user_id: str, session: Session):
         account_list = []
         for account in accounts:
             account_list.append({
-                "account_id": account.account_number,
+                "account_number": account.account_number,
                 "name": account.name,
                 "firstname": account.firstname,
                 "email": account.email,
@@ -68,7 +68,7 @@ def get_all_bank_accounts(user_id: str, session: Session):
     account_list = []
     for account in accounts:
         account_list.append({
-            "account_id": account.account_number,
+            "account_number": account.account_number,
             "balance": cents_to_euros(account.balance),
             "created_at": account.created_at
         })
@@ -77,26 +77,26 @@ def get_all_bank_accounts(user_id: str, session: Session):
         "accounts": account_list
     }
 
-def update_bank_account(account_id: int, updated_data: dict, session: Session):
+def update_bank_account(account_number: int, updated_data: dict, session: Session):
 
-    statement = select(BankAccount).filter_by(account_number=account_id)
+    statement = select(BankAccount).filter_by(account_number=account_number)
     account = session.exec(statement).first()
     if not account:
-        return {"message": "Bank account not found", "account_id": account_id}
+        return {"message": "Bank account not found", "account_number": account_number}
     for key, value in updated_data.items():
         setattr(account, key, value)
     session.commit()
-    return {"message": "Bank account updated", "account_id": account_id, "account": account}
+    return {"message": "Bank account updated", "account_number": account_number, "account": account}
 
-def delete_bank_account(account_id: str, session: Session):
+def delete_bank_account(account_number: str, session: Session):
 
-    statement = select(BankAccount).filter_by(account_number=account_id)
+    statement = select(BankAccount).filter_by(account_number=account_number)
     account = session.exec(statement).first()
     if not account:
-        return {"message": "Bank account not found", "account_id": account_id}
+        return {"message": "Bank account not found", "account_number": account_number}
     session.delete(account)
     session.commit()
-    return {"message": "Bank account deleted", "account_id": account_id}
+    return {"message": "Bank account deleted", "account_number": account_number}
 
 def create_primary_bank_account(name: str, firstname: str, email: str, age: int, user_id: str, session: Session):
     if age < 18:
@@ -135,17 +135,17 @@ def euros_to_cents(euros: float):
     cents = int(euros * 100)
     return cents
 
-def get_account_balance(account_id: str, session: Session):
+def get_account_balance(account_number: str, session: Session):
     """
     Retourne les informations du compte et le solde.
     """
-    statement = select(BankAccount).filter_by(account_number=account_id)
+    statement = select(BankAccount).filter_by(account_number=account_number)
     account = session.exec(statement).first()
     if not account:
-        return {"message": "Bank account not found", "account_id": account_id, "balance": None}
+        return {"message": "Bank account not found", "account_number": account_number, "balance": None}
     return {
         "message": "Account details",
-        "account_id": account.account_number,
+        "account_number": account.account_number,
         "name": account.name,
         "firstname": account.firstname,
         "email": account.email,
@@ -155,39 +155,39 @@ def get_account_balance(account_id: str, session: Session):
         "status": account.status
     }
 
-def deposit_to_account(account_id: str, amount: int, session: Session):
+def deposit_to_account(account_number: str, amount: int, session: Session):
 
-    statement = select(BankAccount).filter_by(account_number=account_id)
+    statement = select(BankAccount).filter_by(account_number=account_number)
     account = session.exec(statement).first()
     if not account:
-        return {"message": "Bank account not found", "account_id": account_id}
+        return {"message": "Bank account not found", "account_number": account_number}
     if amount <= 0:
-        return {"message": "Deposit amount must be positive", "account_id": account_id}
+        return {"message": "Deposit amount must be positive", "account_number": account_number}
     account.balance += euros_to_cents(amount)
     session.commit()
-    return {"message": "Deposit successful", "account_id": account_id, "new_balance": cents_to_euros(account.balance)}
+    return {"message": "Deposit successful", "account_number": account_number, "new_balance": cents_to_euros(account.balance)}
 
-def close_bank_account(account_id: int, user_id: str, session: Session):
+def close_bank_account(account_number: int, user_id: str, session: Session):
 
-    statement = select(BankAccount).filter_by(account_number=account_id)
+    statement = select(BankAccount).filter_by(account_number=account_number)
     account = session.exec(statement).first()
     if not account:
-        return {"message": "Bank account not found", "account_id": account_id}
+        return {"message": "Bank account not found", "account_number": account_number}
     if account.account_type == AccountType.principal:
-        return {"message": "Primary account cannot be closed", "account_id": account_id}
+        return {"message": "Primary account cannot be closed", "account_number": account_number}
     if account.status == status.closed:
-        return {"message": "Account already closed", "account_id": account_id}
+        return {"message": "Account already closed", "account_number": account_number}
 
     if hasattr(account, "has_pending_transactions") and account.has_pending_transactions:
-        return {"message": "Account has pending transactions", "account_id": account_id}
+        return {"message": "Account has pending transactions", "account_number": account_number}
 
     primary_account_data = get_primary_bank_account(user_id, session)
-    if not primary_account_data or not primary_account_data.get("account_id"):
-        return {"message": "Primary account not found for transfer", "account_id": account_id}
-    statement = select(BankAccount).filter_by(account_number=primary_account_data["account_id"])
+    if not primary_account_data or not primary_account_data.get("account_number"):
+        return {"message": "Primary account not found for transfer", "account_number": account_number}
+    statement = select(BankAccount).filter_by(account_number=primary_account_data["account_number"])
     primary_account = session.exec(statement).first()
     if not primary_account:
-        return {"message": "Primary account not found for transfer", "account_id": account_id}
+        return {"message": "Primary account not found for transfer", "account_number": account_number}
 
     if account.balance > 0:
         primary_account.balance += account.balance
@@ -195,4 +195,4 @@ def close_bank_account(account_id: int, user_id: str, session: Session):
 
     account.status = status.closed
     session.commit()
-    return {"message": "Bank account closed", "account_id": account_id}
+    return {"message": "Bank account closed", "account_number": account_number}

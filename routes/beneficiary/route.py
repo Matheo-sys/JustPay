@@ -1,17 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from db.database import get_session
 from sqlmodel import Session
-from beneficiary import (
-    add_beneficiary,
-    get_beneficiary,
-    update_beneficiary,
-    delete_beneficiary,
-    list_of_beneficiaries,
-)
+from beneficiary import (add_beneficiary, get_beneficiary, update_beneficiary, delete_beneficiary, list_of_beneficiaries,)
 
-router = APIRouter()
+app = APIRouter()
 
-@router.post("/beneficiaries")
+@app.post("/")
 def create_beneficiary(user_id: str, name: str, account_number: str, session: Session = Depends(get_session)):
     try:
         beneficiary = add_beneficiary(user_id, name, account_number, session)
@@ -27,7 +21,7 @@ def create_beneficiary(user_id: str, name: str, account_number: str, session: Se
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/beneficiaries/{beneficiary_id}")
+@app.get("/{beneficiary_id}")
 def read_beneficiary(beneficiary_id: str, session: Session = Depends(get_session)):
     try:
         beneficiary = get_beneficiary(beneficiary_id, session)
@@ -40,7 +34,7 @@ def read_beneficiary(beneficiary_id: str, session: Session = Depends(get_session
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.put("/beneficiaries/{beneficiary_id}")
+@app.put("/{beneficiary_id}")
 def update_beneficiary_route(beneficiary_id: str, name: str, session: Session = Depends(get_session)):
     try:
         beneficiary = update_beneficiary(beneficiary_id, name, session)
@@ -56,14 +50,14 @@ def update_beneficiary_route(beneficiary_id: str, name: str, session: Session = 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.delete("/beneficiaries/{beneficiary_id}")
+@app.delete("/{beneficiary_id}")
 def delete_beneficiary_route(beneficiary_id: str, session: Session = Depends(get_session)):
     try:
         return delete_beneficiary(beneficiary_id, session)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/beneficiaries/user/{user_id}")
+@app.get("/user/{user_id}")
 def list_beneficiaries_route(user_id: str, session: Session = Depends(get_session)):
     return list_of_beneficiaries(user_id, session)
 

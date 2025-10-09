@@ -66,26 +66,26 @@ def get_all_accounts():
     return get_all_bank_accounts()
 
 # Mettre à jour un compte
-@app.put("/accounts/{account_id}")
-def update_account(account_id: str, updated_data: dict, session=Depends(get_session)):
-    return update_bank_account(account_id, updated_data, session)
+@app.put("/accounts/{account_number}")
+def update_account(account_number: str, updated_data: dict, session=Depends(get_session)):
+    return update_bank_account(account_number, updated_data, session)
 
 # Supprimer un compte
-@app.delete("/accounts/{account_id}")
-def delete_account(account_id: str, session=Depends(get_session)):
-    return delete_bank_account(account_id, session)
+@app.delete("/accounts/{account_number}")
+def delete_account(account_number: str, session=Depends(get_session)):
+    return delete_bank_account(account_number, session)
 
 # Consulter le solde et infos du compte
-@app.get("/accounts/balance/{account_id}")
-def get_balance(account_id: str, session=Depends(get_session)):
-    return get_account_balance(account_id, session)
+@app.get("/accounts/balance/{account_number}")
+def get_balance(account_number: str, session=Depends(get_session)):
+    return get_account_balance(account_number, session)
 
 # Déposer sur un compte
 @app.post("/accounts/deposit")
-def deposit(account_id: str, amount: int, session=Depends(get_session)):
-    return deposit_to_account(account_id, amount, session)
+def deposit(account_number: str, amount: int, session=Depends(get_session)):
+    return deposit_to_account(account_number, amount, session)
 
 # Clôturer un compte
 @app.post("/accounts/close")
-def close_account(account_id: str, user_id: str, session=Depends(get_session)):
-    return close_bank_account(account_id, user_id, session)
+def close_account(account_number: str, user_id: str, session=Depends(get_session)):
+    return close_bank_account(account_number, user_id, session)

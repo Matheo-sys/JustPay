@@ -9,9 +9,9 @@ from payment import (
     cancel_payment,
 )
 
-router = APIRouter()
+app = APIRouter()
 
-@router.post("/payments/internal")
+@app.post("/internal")
 def internal_transfer(
     user_id: str,
     account_number: str,
@@ -25,7 +25,7 @@ def internal_transfer(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/payments/external")
+@app.post("/external")
 def external_transfer(
     user_id: str,
     account_number: str,
@@ -41,19 +41,19 @@ def external_transfer(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/payments/{payment_id}")
+@app.get("/{payment_id}")
 def payment_details(payment_id: str, session: Session = Depends(get_session)):
     payment = get_payment_details(payment_id)
     if not payment:
         raise HTTPException(status_code=404, detail="Transaction introuvable.")
     return payment
 
-@router.get("/payments/account/{account_number}")
+@app.get("/account/{account_number}")
 def account_transactions(account_number: str, session: Session = Depends(get_session)):
     payments = get_account_transactions(account_number)
     return payments
 
-@router.post("/payments/cancel")
+@app.post("/cancel")
 def cancel_payment_route(user_id: str, payment_id: str, session: Session = Depends(get_session)):
     success = cancel_payment(user_id, payment_id)
     if not success:

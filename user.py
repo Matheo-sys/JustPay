@@ -2,7 +2,6 @@ from enum import Enum
 
 from sqlmodel import Session
 from bankAccount import create_primary_bank_account
-from pydantic import BaseModel
 import uuid
 from pydantic import BaseModel, Field
 from uuid import uuid4
@@ -56,15 +55,3 @@ def update_user(user_id: int, user: User, session: Session):
     return {"message": "User updated", "user_id": user_id, "user": user}
 
 def delete_user(user_id: int): return {"message": "User deleted", "user_id": user_id}
-
-ph = PasswordHasher()
-def hash_password(password: str) -> str:
-    return ph.hash(password)
-
-def verify_password(hashed_password: str, password: str) -> bool:
-    try:
-        ph.verify(hashed_password, password)
-        return True
-    except VerifyMismatchError:
-        return False
-

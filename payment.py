@@ -105,6 +105,40 @@ def cancel_payment(payment_id: str):
             session.commit()
 
 
+from datetime import datetime, timedelta
+
+def cancel_payment(user_id: int, payment_id: str) -> bool:
+    # . Récupérer la transaction
+    payment = get_payment_details(payment_id)
+    if not payment:
+        return False  # Transaction introuvable
+
+    #  Vérifier que l'utilisateur est le propriétaire de la transaction
+    if payment.user_id != user_id:
+        return False  # L'utilisateur n'est pas autorisé
+
+    #  Vérifier que la transaction est en statut PENDING
+    if payment.status != PaymentStatus.PENDING:
+        return False  # Impossible d'annuler une transaction déjà complétée ou annulée
+
+    #  Vérifier que l'annulation intervient dans les 5 secondes
+    if (datetime.now() - payment.date) > timedelta(seconds=5):
+        return False  # Délai d'annulation dépassé
+
+    #  Mettre à jour les soldes (annuler le débit/crédit)
+    if payment.operation_type == OperationType.INTERNAL_TRANSFER:
+        # Annuler le débit du compte source
+        update_account_balance(payment.account_number, payment.amount, is_debit=False)
+        # Annuler le crédit du compte destinataire
+        update_account_balance(payment.beneficiary_account_number, payment.amount, is_debit=True)
+    elif payment.operation_type == OperationType.EXTERNAL_TRANSFER:
+        # Annuler le débit du compte source (montant + frais)
+        update_account_balance(payment.account_number, payment.amount + payment.fees, is_debit=False)
+
+    #  Mettre à jour le statut de la transaction
+    payment.status = PaymentStatus.CANCELLED
+
+    return True  # Annulation réussie
 
 
 

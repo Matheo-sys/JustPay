@@ -5,6 +5,7 @@ from beneficiary import *
 from db.database import Session
 from db.models import BankAccount
 from sqlmodel import select
+import uuid
 
 class AccountType(int, Enum):
     principal = 1
@@ -134,7 +135,7 @@ def euros_to_cents(euros: float):
     cents = int(euros * 100)
     return cents
 
-def get_account_balance(account_id: int, session: Session):
+def get_account_balance(account_id: str, session: Session):
     """
     Retourne les informations du compte et le solde.
     """

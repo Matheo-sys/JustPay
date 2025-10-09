@@ -129,6 +129,12 @@ def inscription(
             detail="Cet email est déjà utilisé"
         )
     
+    if data.age < 18:
+        raise HTTPException(
+            status_code=400,
+            detail="Vous devez avoir au moins 18 ans pour ouvrir un compte bancaire."
+    )
+    
     password_hashe = hasher_password(data.password)
     
     nouveau_user = create_user(

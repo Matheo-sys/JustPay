@@ -67,7 +67,7 @@ def get_all_accounts():
 
 # Mettre à jour un compte
 @app.put("/accounts/{account_id}")
-def update_account(account_id: int, updated_data: dict, session=Depends(get_session)):
+def update_account(account_id: str, updated_data: dict, session=Depends(get_session)):
     return update_bank_account(account_id, updated_data, session)
 
 # Supprimer un compte
@@ -77,7 +77,7 @@ def delete_account(account_id: str, session=Depends(get_session)):
 
 # Consulter le solde et infos du compte
 @app.get("/accounts/balance/{account_id}")
-def get_balance(account_id: int, session=Depends(get_session)):
+def get_balance(account_id: str, session=Depends(get_session)):
     return get_account_balance(account_id, session)
 
 # Déposer sur un compte
@@ -87,5 +87,5 @@ def deposit(account_id: str, amount: int, session=Depends(get_session)):
 
 # Clôturer un compte
 @app.post("/accounts/close")
-def close_account(account_id: int, user_id: str, session=Depends(get_session)):
+def close_account(account_id: str, user_id: str, session=Depends(get_session)):
     return close_bank_account(account_id, user_id, session)

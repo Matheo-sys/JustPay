@@ -24,13 +24,21 @@ def create_user(pseudo: str, name: str, firstname: str, password: str, email: st
     
     hashed_password = ph.hash(password)
 
-    user = User(BaseModel)
+    user = User(pseudo=pseudo, 
+                name=name, 
+                firstname=firstname, 
+                hashed_password=hashed_password, 
+                email=email, 
+                age=age, 
+                region=region,
+                gender=gender,
+                session=session)
     
     create_primary_bank_account(name=name, 
                         firstname=firstname, 
                         email=email, age=age, 
-                        account_number=str(uuid.uuid4()), 
-                        user_id=str(user.id))
+                        user_id=str(user.id),
+                        session=session)
     
     session.add(user)
     session.commit()

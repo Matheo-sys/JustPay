@@ -25,7 +25,7 @@ class BankAccount(SQLModel, table=True):
     firstname: str
     email: str
     age: int
-    account_number: str = Field(index=True, unique=True)
+    account_number: str = Field(index=True, unique=True) #ajouter UUID
     balance: int = 10000 # Balance in cents
     account_type: int
     currency: str = "EUR"

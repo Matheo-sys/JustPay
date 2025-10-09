@@ -25,13 +25,12 @@ def create_primary_account(
     firstname: str,
     email: str,
     age: int,
-    account_number: str,
     user_id: str,
     session=Depends(get_session)
 ):
     try:
-        account = create_primary_bank_account(name, firstname, email, age, account_number, user_id, session)
-        return {"message": "Primary account created", "account": account}
+        account = create_primary_bank_account(name, firstname, email, age, user_id, session)
+        return {"message": "Primary account created", "account": account.account_number}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -42,13 +41,12 @@ def create_secondary_account(
     firstname: str,
     email: str,
     age: int,
-    account_number: str,
     user_id: str,
     session=Depends(get_session)
 ):
     try:
-        account = create_secondary_bank_account(name, firstname, email, age, account_number, user_id, session)
-        return {"message": "Secondary account created", "account": account}
+        account = create_secondary_bank_account(name, firstname, email, age, user_id, session)
+        return {"message": "Secondary account created", "account": account.account_number}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -74,7 +72,7 @@ def update_account(account_id: int, updated_data: dict, session=Depends(get_sess
 
 # Supprimer un compte
 @app.delete("/accounts/{account_id}")
-def delete_account(account_id: int, session=Depends(get_session)):
+def delete_account(account_id: str, session=Depends(get_session)):
     return delete_bank_account(account_id, session)
 
 # Consulter le solde et infos du compte
@@ -84,7 +82,7 @@ def get_balance(account_id: int, session=Depends(get_session)):
 
 # Déposer sur un compte
 @app.post("/accounts/deposit")
-def deposit(account_id: int, amount: int, session=Depends(get_session)):
+def deposit(account_id: str, amount: int, session=Depends(get_session)):
     return deposit_to_account(account_id, amount, session)
 
 # Clôturer un compte

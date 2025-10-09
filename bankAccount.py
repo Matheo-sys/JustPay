@@ -4,6 +4,7 @@ from enum import Enum
 from beneficiary import *
 from db.database import Session
 from db.models import BankAccount
+from sqlmodel import select
 
 class AccountType(int, Enum):
     principal = 1
@@ -21,9 +22,8 @@ class status(str, Enum):
 list_of_bank_accounts = []
 
 def get_primary_bank_account(user_id: str, session: Session):
-    
-    
-    account = session.exec(BankAccount).filter_by(user_id=user_id, account_type=AccountType.principal).first()
+    statement = select(BankAccount).filter_by(user_id=user_id, account_type=AccountType.principal)
+    account = session.exec(statement).first()
     if account:
         return {
             "message": "Bank account details",
@@ -39,8 +39,8 @@ def get_primary_bank_account(user_id: str, session: Session):
         return {"message": "Primary bank account not found", "account_id": None}
     
 def get_secondary_bank_account(user_id: str, session: Session):
-    
-    accounts = session.exec(BankAccount).filter_by(user_id=user_id, account_type=AccountType.secondary).all()
+    statement = select(BankAccount).filter_by(user_id=user_id, account_type=AccountType.secondary)
+    accounts = session.exec(statement).all()
     if accounts:
         account_list = []
         for account in accounts:
@@ -62,7 +62,8 @@ def get_secondary_bank_account(user_id: str, session: Session):
     
 def get_all_bank_accounts(user_id: str, session: Session):
 
-    accounts = session.exec(BankAccount).filter_by(user_id=user_id).order_by(BankAccount.created_at.desc()).all()
+    statement = select(BankAccount).filter_by(user_id=user_id).order_by(BankAccount.created_at.desc())
+    accounts = session.exec(statement).all()
     account_list = []
     for account in accounts:
         account_list.append({
@@ -77,7 +78,8 @@ def get_all_bank_accounts(user_id: str, session: Session):
 
 def update_bank_account(account_id: int, updated_data: dict, session: Session):
 
-    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    statement = select(BankAccount).filter_by(account_number=account_id)
+    account = session.exec(statement).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id}
     for key, value in updated_data.items():
@@ -85,39 +87,40 @@ def update_bank_account(account_id: int, updated_data: dict, session: Session):
     session.commit()
     return {"message": "Bank account updated", "account_id": account_id, "account": account}
 
-def delete_bank_account(account_id: int, session: Session):
+def delete_bank_account(account_id: str, session: Session):
 
-    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    statement = select(BankAccount).filter_by(account_number=account_id)
+    account = session.exec(statement).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id}
     session.delete(account)
     session.commit()
     return {"message": "Bank account deleted", "account_id": account_id}
 
-def create_primary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str, session: Session):
+def create_primary_bank_account(name: str, firstname: str, email: str, age: int, user_id: str, session: Session):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
     if not name or not firstname or not email:
         raise ValueError("Name, firstname, and email cannot be empty.")
         
-    bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, account_type=1, user_id=user_id)
+    bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number= str(uuid.uuid4()), account_type=1, user_id=user_id)
     list_of_bank_accounts.append(bankUser)
     session.add(bankUser)
     session.commit()
     return bankUser
 
-def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, account_number: str, user_id: str, session: Session):
+def create_secondary_bank_account(name: str, firstname: str, email: str, age: int, user_id: str, session: Session):
     if age < 18:
         raise ValueError("User must be at least 18 years old to create a bank account.")
     
     if not name or not firstname or not email:
         raise ValueError("Name, firstname, and email cannot be empty.")
     
-    if list_of_bank_accounts.count >= 5:
+    if len(list_of_bank_accounts) >= 5:
         raise ValueError("User cannot have more than 5 bank accounts.")
         
-    bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=account_number, balance=0 ,account_type=0, user_id=user_id)
+    bankUser = BankAccount(name=name, firstname=firstname, email=email, age=age, account_number=str(uuid.uuid4()), balance=0 ,account_type=0, user_id=user_id)
     list_of_bank_accounts.append(bankUser)
     session.add(bankUser)
     session.commit()
@@ -135,7 +138,8 @@ def get_account_balance(account_id: int, session: Session):
     """
     Retourne les informations du compte et le solde.
     """
-    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    statement = select(BankAccount).filter_by(account_number=account_id)
+    account = session.exec(statement).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id, "balance": None}
     return {
@@ -150,9 +154,10 @@ def get_account_balance(account_id: int, session: Session):
         "status": account.status
     }
 
-def deposit_to_account(account_id: int, amount: int, session: Session):
+def deposit_to_account(account_id: str, amount: int, session: Session):
 
-    account = session.exec(BankAccount).filter_by(account_number=account_id).first()
+    statement = select(BankAccount).filter_by(account_number=account_id)
+    account = session.exec(statement).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id}
     if amount <= 0:
@@ -163,7 +168,8 @@ def deposit_to_account(account_id: int, amount: int, session: Session):
 
 def close_bank_account(account_id: int, user_id: str, session: Session):
 
-    account = session.exec(BankAccount).filter_by(account_number=account_id, user_id=user_id).first()
+    statement = select(BankAccount).filter_by(account_number=account_id)
+    account = session.exec(statement).first()
     if not account:
         return {"message": "Bank account not found", "account_id": account_id}
     if account.account_type == AccountType.principal:
@@ -177,7 +183,8 @@ def close_bank_account(account_id: int, user_id: str, session: Session):
     primary_account_data = get_primary_bank_account(user_id, session)
     if not primary_account_data or not primary_account_data.get("account_id"):
         return {"message": "Primary account not found for transfer", "account_id": account_id}
-    primary_account = session.exec(BankAccount).filter_by(account_number=primary_account_data["account_id"]).first()
+    statement = select(BankAccount).filter_by(account_number=primary_account_data["account_id"])
+    primary_account = session.exec(statement).first()
     if not primary_account:
         return {"message": "Primary account not found for transfer", "account_id": account_id}
 

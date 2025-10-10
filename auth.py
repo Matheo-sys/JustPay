@@ -111,7 +111,7 @@ def get_current_user(
         )
     
     return user
-
+#return user_id pour plus de rapidité
 
 
 def validate_password(password: str):

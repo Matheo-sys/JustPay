@@ -26,6 +26,7 @@ def create_user(pseudo: str, name: str, firstname: str, password: str, email: st
     session.add(user)
     session.commit()
     session.refresh(user)
+    
     create_primary_bank_account(
         name=name, 
         firstname=firstname, 

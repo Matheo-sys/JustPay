@@ -48,6 +48,7 @@ def create_transfer(user_id: str, account_number: str, beneficiary_account_numbe
     else:
         payment = create_external_transfer(user_id, account_number, beneficiary_account_number, amount)
 
+    # Mettre à jour les soldes si le paiement annulé 
     account.balance -= amount
     beneficiary_account.balance += amount
     session.add(payment)
@@ -152,5 +153,7 @@ def cancel_payment(user_id: int, payment_id: str) -> bool:
 
 
 
-
+"""
+task_scheduler 10s pour applied les trasactions en attente
+"""
 

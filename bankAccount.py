@@ -1,3 +1,5 @@
+from datetime import time
+from threading import Thread
 from fastapi import FastAPI
 from pydantic import BaseModel
 from enum import Enum
@@ -242,5 +244,5 @@ def schedule_transfer_excess(account_number: str, session: Session):
         while True:
             transfer_secondary_excess_to_primary(account_number, session)
             time.sleep(300)  # 300 secondes = 5 minutes
-    thread = threading.Thread(target=run_task, daemon=True)
+    thread = Thread(target=run_task, daemon=True)
     thread.start()

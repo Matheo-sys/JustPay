@@ -5,14 +5,10 @@ from bankAccount import (
     get_primary_bank_account,
     get_secondary_bank_account,
     get_all_bank_accounts,
-    update_bank_account,
     delete_bank_account,
     get_account_balance,
     deposit_to_account,
     close_bank_account,
-    AccountType,
-    Currency,
-    list_of_bank_accounts,
 )
 from db.database import get_session
 

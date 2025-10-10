@@ -36,21 +36,6 @@ def create_user(pseudo: str, name: str, firstname: str, password: str, email: st
     )
     return user
 
-def get_user(user_id: str, session: Session):
-    user = session.get(User, user_id)
-    if not user:
-        return None
-    return {
-        "user_id": user.id,
-        "pseudo": user.pseudo,
-        "name": user.name,
-        "firstname": user.firstname,
-        "email": user.email,
-        "age": user.age,
-        "region": user.region,
-        "gender": user.gender
-    }
-
 def update_user(user_id: str, updated_data: dict, session: Session):
     user = session.get(User, user_id)
     if not user:

@@ -36,7 +36,7 @@ class BankAccount(SQLModel, table=True):
 
 class Beneficiary(SQLModel, table=True):
     id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
-    user_id: Optional[str] = Field(foreign_key="user.id")
+    user_id: str = Field(foreign_key="user.id")
     name: str
     account_number: str
 
@@ -46,18 +46,13 @@ class Payment(SQLModel, table=True):
     id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
     account_number: str = Field(foreign_key="bankaccount.account_number")
     user_id: Optional[str] = Field(foreign_key="user.id")
-    beneficiary_account_number: str = Field(foreign_key="beneficiary.account_number")
-    date: datetime = Field(default_factory=datetime.now(timezone.utc))
+    beneficiary_account_number: str = Field(foreign_key="bankaccount.account_number")
     amount: int
+    date: datetime = Field(default_factory=datetime.now(timezone.utc))
+    status: str = "pending"
+    operation_type: str = "virement interne"
 
     user: Optional[User] = Relationship(back_populates="payments")
 
-class Operation(SQLModel, table=True):
-    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True, index=True)
-    payment_id: Optional[str] = Field(foreign_key="payment.id")
-    operation_type: str
-    status: str = "pending"
-    date: datetime = Field(default_factory=datetime.now(timezone.utc))
-    amount: int
 
-    payment: Optional[Payment] = Relationship()
+

@@ -66,9 +66,11 @@ def get_all_accounts():
     return get_all_bank_accounts()
 
 # Mettre à jour un compte
-@app.put("/accounts/{account_number}")
+
+"""@app.put("/accounts/{account_number}")
 def update_account(account_number: str, updated_data: dict, session=Depends(get_session)):
     return update_bank_account(account_number, updated_data, session)
+"""
 
 # Supprimer un compte
 @app.delete("/accounts/{account_number}")

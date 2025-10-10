@@ -1,8 +1,5 @@
-from sqlmodel import Session, create_engine, SQLModel, Field
-from db.models import User, BankAccount, Beneficiary, Payment, Operation
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
-import uuid
+from sqlmodel import Session, create_engine, SQLModel
+from sqlmodel import SQLModel
 
 
 

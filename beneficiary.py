@@ -8,11 +8,6 @@ from db.database import get_session
 from sqlmodel import select, Session
 from datetime import datetime, timezone
 
-class Beneficiary(BaseModel):
-    name: str
-    account_number: str 
-    user_id: int = None
-
 list_of_beneficiaries = []
 
 
@@ -80,7 +75,7 @@ def delete_beneficiary(beneficiary_id: str, session: Session):
         raise ValueError("Bénéficiaire introuvable.")
     session.delete(beneficiary)
     session.commit()
-    return {"message": "Bénéficiaire supprimé."}
+    return {"message": "Bénéficiaire supprimé.", "name": beneficiary.name}
 
 def list_of_beneficiaries(user_id: str, session: Session):
     beneficiaries = session.exec(

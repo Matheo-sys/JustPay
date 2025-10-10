@@ -34,22 +34,6 @@ def read_beneficiary(beneficiary_id: str, session: Session = Depends(get_session
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.put("/{beneficiary_id}")
-def update_beneficiary_route(beneficiary_id: str, name: str, session: Session = Depends(get_session)):
-    try:
-        beneficiary = update_beneficiary(beneficiary_id, name, session)
-        return {
-            "message": "Bénéficiaire mis à jour.",
-            "beneficiary": {
-                "id": beneficiary.id,
-                "name": beneficiary.name,
-                "account_number": beneficiary.account_number,
-                "date_added": getattr(beneficiary, "date_added", None)
-            }
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
 @app.delete("/{beneficiary_id}")
 def delete_beneficiary_route(beneficiary_id: str, session: Session = Depends(get_session)):
     try:

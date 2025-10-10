@@ -58,8 +58,8 @@ def get_secondary_accounts(user_id: str, session=Depends(get_session)):
 
 # Récupérer tous les comptes
 @app.get("/accounts/")
-def get_all_accounts():
-    return get_all_bank_accounts()
+def get_all_accounts(user_id: str = None, session=Depends(get_session)):
+    return get_all_bank_accounts(user_id, session)
 
 # Mettre à jour un compte
 

@@ -30,6 +30,7 @@ class BankAccount(SQLModel, table=True):
     account_type: int
     currency: str = "EUR"
     status: str = "active"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     user_id: Optional[str] = Field(foreign_key="user.id")
 
     user: Optional[User] = Relationship(back_populates="bank_accounts")

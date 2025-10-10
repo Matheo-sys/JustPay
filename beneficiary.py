@@ -95,4 +95,3 @@ def list_of_beneficiaries(user_id: str, session: Session):
         }
         for b in beneficiaries
     ]
-

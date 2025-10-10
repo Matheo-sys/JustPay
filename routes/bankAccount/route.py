@@ -12,7 +12,7 @@ from bankAccount import (
 )
 from db.database import get_session
 
-app = APIRouter()
+app = APIRouter(tags=["BankAccount"])
 
 # Création compte principal
 @app.post("/accounts/primary")

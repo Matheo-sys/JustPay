@@ -3,7 +3,7 @@ from sqlmodel import Session
 from db.database import get_session
 from user import delete_user, update_user
 
-app = APIRouter()
+app = APIRouter(tags=["User"])
 
 @app.delete("/{user_id}")
 def delete_user_root(user_id: str, session: Session = Depends(get_session)):

@@ -7,7 +7,7 @@ from user import create_user, User
 from auth import hasher_password, verifier_password, creer_token, find_user_by_email, get_current_user, validate_age,validate_gender,validate_nom,validate_password,validate_pseudo,validate_region,UserResponse, Inscription, Connexion
 from pydantic import EmailStr
 
-app = APIRouter()
+app = APIRouter(tags=["Auth"])
 
 SECRET_KEY = "123456"
 ALGORITHM = "HS256"

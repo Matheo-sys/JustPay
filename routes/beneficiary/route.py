@@ -3,7 +3,7 @@ from db.database import get_session
 from sqlmodel import Session
 from beneficiary import (add_beneficiary, get_beneficiary, update_beneficiary, delete_beneficiary, list_of_beneficiaries,)
 
-app = APIRouter()
+app = APIRouter(tags=["Beneficiary"])
 
 @app.post("/")
 def create_beneficiary(user_id: str, name: str, account_number: str, session: Session = Depends(get_session)):

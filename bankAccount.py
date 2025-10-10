@@ -244,5 +244,3 @@ def schedule_transfer_excess(account_number: str, session: Session):
             time.sleep(300)  # 300 secondes = 5 minutes
     thread = threading.Thread(target=run_task, daemon=True)
     thread.start()
-
-    

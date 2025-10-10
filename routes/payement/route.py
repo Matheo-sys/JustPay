@@ -8,7 +8,7 @@ from payment import (
     get_payment_details
 )
 
-app = APIRouter()
+app = APIRouter(tags=["Payment"])
 
 @app.post("/transfer")
 def transfer(

@@ -196,3 +196,53 @@ def close_bank_account(account_number: int, user_id: str, session: Session):
     account.status = status.closed
     session.commit()
     return {"message": "Bank account closed", "account_number": account_number}
+
+def transfer_secondary_excess_to_primary(account_number: str, session: Session):
+    """
+    Si la balance d'un compte secondaire dépasse 50 000€, transfère le surplus sur le compte principal associé.
+    """
+    MAX_BALANCE_CENTS = euros_to_cents(50000)
+
+    statement = select(BankAccount).filter_by(account_number=account_number, account_type=AccountType.secondary)
+    account = session.exec(statement).first()
+    if not account:
+        return {"message": "Secondary bank account not found", "account_number": account_number}
+    if account.balance > MAX_BALANCE_CENTS:
+        surplus = account.balance - MAX_BALANCE_CENTS
+        # Récupérer le compte principal associé
+        primary_account_data = get_primary_bank_account(account.user_id, session)
+        if not primary_account_data or not primary_account_data.get("account_number"):
+            return {"message": "Primary account not found for transfer", "account_number": account_number}
+        statement = select(BankAccount).filter_by(account_number=primary_account_data["account_number"])
+        primary_account = session.exec(statement).first()
+        if not primary_account:
+            return {"message": "Primary account not found for transfer", "account_number": account_number}
+ 
+        primary_account.balance += surplus
+        account.balance = MAX_BALANCE_CENTS
+        session.commit()
+        return {
+            "message": "Surplus transferred to primary account",
+            "secondary_account_number": account_number,
+            "primary_account_number": primary_account.account_number,
+            "transferred_amount": cents_to_euros(surplus),
+            "secondary_new_balance": cents_to_euros(account.balance),
+            "primary_new_balance": cents_to_euros(primary_account.balance)
+        }
+    else:
+        return {
+            "message": "No surplus to transfer",
+            "secondary_account_number": account_number,
+            "balance": cents_to_euros(account.balance)
+        }
+    
+
+def schedule_transfer_excess(account_number: str, session: Session):
+    def run_task():
+        while True:
+            transfer_secondary_excess_to_primary(account_number, session)
+            time.sleep(300)  # 300 secondes = 5 minutes
+    thread = threading.Thread(target=run_task, daemon=True)
+    thread.start()
+
+    

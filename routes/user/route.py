@@ -5,6 +5,10 @@ from user import delete_user, update_user
 
 app = APIRouter(tags=["User"])
 
+@app.get("/bonjour")
+def lire_bonjour():
+    return {"message": "Bonjour depuis FastAPI!"}
+
 @app.delete("/{user_id}")
 def delete_user_root(user_id: str, session: Session = Depends(get_session)):
     success = delete_user(user_id, session)
@@ -22,3 +26,4 @@ def update_user_root(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User updated", "user_id": user_id, "user": user}
+

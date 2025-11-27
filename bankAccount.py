@@ -35,7 +35,7 @@ def get_primary_bank_account(user_id: str, session: Session):
             "firstname": account.firstname,
             "email": account.email,
             "age": account.age,
-            "balance": account.balance,
+            "balance": cents_to_euros(account.balance),
             "currency": account.currency
         }
     else:
@@ -53,7 +53,7 @@ def get_secondary_bank_account(user_id: str, session: Session):
                 "firstname": account.firstname,
                 "email": account.email,
                 "age": account.age,
-                "balance": account.balance,
+                "balance": cents_to_euros(account.balance),
                 "currency": account.currency
             })
         return {

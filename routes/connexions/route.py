@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from fastapi import HTTPException
 from fastapi import APIRouter
 
-app = APIRouter(tags=[""])
+app = APIRouter(tags=["Update User Info"])
 
 class PasswordChange(BaseModel):
     current_password: str

@@ -6,6 +6,7 @@ from routes.beneficiary.route import app as beneficiary_router
 from routes.payement.route import app as payment_router
 from routes.auth.route import app as auth_router
 from fastapi.middleware.cors import CORSMiddleware
+from routes.connexions.route import app as connexions_router
 
 create_db_and_tables()
 
@@ -15,6 +16,7 @@ app.include_router(user_router, prefix="/users")
 app.include_router(bank_account_router, prefix="/bankaccount")
 app.include_router(beneficiary_router, prefix="/beneficiaries")
 app.include_router(payment_router, prefix="/payments")
+app.include_router(connexions_router, prefix="/connexions")
 
 origins = [
     "http://localhost:5173",  

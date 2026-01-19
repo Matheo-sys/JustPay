@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+argon2-cffi
+pyjwt
+email-validator
+
+pytest
+httpx
